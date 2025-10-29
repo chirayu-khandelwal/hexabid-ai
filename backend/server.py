@@ -16,6 +16,8 @@ from emergentintegrations.llm.chat import LlmChat, UserMessage
 import random
 import io
 from PyPDF2 import PdfReader
+from gem_scraper import GeMScraper, HistoricalDataCollector
+from document_generator import DocumentGenerator
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
