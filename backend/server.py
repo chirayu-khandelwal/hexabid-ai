@@ -159,6 +159,69 @@ class ChatResponse(BaseModel):
     response: str
     tender_context: Optional[Dict[str, Any]] = None
 
+class PriceAnalysis(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    tender_id: str
+    historical_prices: List[Dict[str, Any]]
+    average_price: float
+    recommended_price: float
+    price_trend: str
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class ProductRecommendation(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    tender_id: str
+    recommended_products: List[Dict[str, Any]]
+    oem_suggestions: List[Dict[str, Any]]
+    technical_compliance: Dict[str, Any]
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class Notification(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    user_id: str
+    title: str
+    message: str
+    type: str  # info, success, warning, danger
+    read: bool = False
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class SupportTicket(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    user_id: str
+    subject: str
+    description: str
+    category: str
+    priority: str = "medium"
+    status: str = "open"
+    responses: List[Dict[str, Any]] = []
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class VendorPerformance(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    vendor_id: str
+    vendor_name: str
+    total_orders: int
+    completed_orders: int
+    on_time_delivery: float
+    quality_rating: float
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class Subscription(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    user_id: str
+    plan: str  # starter, professional, enterprise
+    ai_credits: int
+    start_date: datetime
+    end_date: datetime
+    status: str = "active"
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
 # ===== HELPER FUNCTIONS =====
 
 def get_password_hash(password: str) -> str:
