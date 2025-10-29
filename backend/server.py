@@ -938,6 +938,108 @@ async def auto_classify_tenders(current_user: User = Depends(get_current_user)):
     
     return {"message": f"Classified {classified_count} tenders", "count": classified_count}
 
+@api_router.post("/gem/scrape-latest")
+async def scrape_gem_tenders(category: Optional[str] = None, limit: int = 50, current_user: User = Depends(get_current_user)):
+    """Scrape latest tenders from GeM portal"""
+    scraper = GeMScraper()
+    tenders = await scraper.scrape_latest_tenders(category=category, limit=limit)
+    
+    # Store in database
+    if tenders:
+        for tender in tenders:
+            # Check if tender already exists
+            existing = await db.tenders.find_one({"tender_id": tender['tender_id']})
+            if not existing:
+                await db.tenders.insert_one(tender)
+    
+    return {"message": f"Scraped {len(tenders)} tenders from GeM", "count": len(tenders), "tenders": tenders}
+
+@api_router.post("/documents/generate-boq")
+async def generate_boq_document(tender_id: str, items: List[Dict[str, Any]], current_user: User = Depends(get_current_user)):
+    """Generate BOQ Excel document"""
+    tender = await db.tenders.find_one({"id": tender_id}, {"_id": 0})
+    if not tender:
+        raise HTTPException(status_code=404, detail="Tender not found")
+    
+    doc_generator = DocumentGenerator()
+    filepath = doc_generator.generate_boq(tender, items)
+    
+    return {
+        "message": "BOQ generated successfully",
+        "file_path": filepath,
+        "file_name": os.path.basename(filepath)
+    }
+
+@api_router.post("/documents/generate-cover-letter")
+async def generate_cover_letter_document(tender_id: str, company_data: Dict[str, Any], current_user: User = Depends(get_current_user)):
+    """Generate cover letter document"""
+    tender = await db.tenders.find_one({"id": tender_id}, {"_id": 0})
+    if not tender:
+        raise HTTPException(status_code=404, detail="Tender not found")
+    
+    doc_generator = DocumentGenerator()
+    filepath = doc_generator.generate_cover_letter(company_data, tender)
+    
+    return {
+        "message": "Cover letter generated successfully",
+        "file_path": filepath,
+        "file_name": os.path.basename(filepath)
+    }
+
+@api_router.post("/documents/generate-company-profile")
+async def generate_company_profile_document(company_data: Dict[str, Any], current_user: User = Depends(get_current_user)):
+    """Generate company profile document"""
+    doc_generator = DocumentGenerator()
+    filepath = doc_generator.generate_company_profile(company_data)
+    
+    return {
+        "message": "Company profile generated successfully",
+        "file_path": filepath,
+        "file_name": os.path.basename(filepath)
+    }
+
+@api_router.post("/documents/generate-technical-bid")
+async def generate_technical_bid_document(tender_id: str, technical_details: Dict[str, Any], current_user: User = Depends(get_current_user)):
+    """Generate technical bid document"""
+    tender = await db.tenders.find_one({"id": tender_id}, {"_id": 0})
+    if not tender:
+        raise HTTPException(status_code=404, detail="Tender not found")
+    
+    doc_generator = DocumentGenerator()
+    filepath = doc_generator.generate_technical_bid(tender, technical_details)
+    
+    return {
+        "message": "Technical bid generated successfully",
+        "file_path": filepath,
+        "file_name": os.path.basename(filepath)
+    }
+
+@api_router.post("/documents/calculate-emd")
+async def calculate_emd(tender_value: float, emd_percentage: float = 2.0):
+    """Calculate EMD amount"""
+    doc_generator = DocumentGenerator()
+    emd_amount = doc_generator.calculate_emd(tender_value, emd_percentage)
+    
+    return {
+        "tender_value": tender_value,
+        "emd_percentage": emd_percentage,
+        "emd_amount": round(emd_amount, 2),
+        "emd_amount_formatted": f"₹{emd_amount:,.2f}"
+    }
+
+@api_router.get("/documents/templates")
+async def get_document_templates(current_user: User = Depends(get_current_user)):
+    """Get available document templates"""
+    templates = [
+        {"id": "boq", "name": "Bill of Quantities (BOQ)", "description": "Excel template for BOQ"},
+        {"id": "cover_letter", "name": "Cover Letter", "description": "Professional cover letter for tender submission"},
+        {"id": "company_profile", "name": "Company Profile", "description": "Complete company profile document"},
+        {"id": "technical_bid", "name": "Technical Bid", "description": "Technical bid with compliance matrix"},
+        {"id": "financial_bid", "name": "Financial Bid", "description": "Financial bid document"},
+        {"id": "experience_certificate", "name": "Experience Certificate", "description": "Work experience certificate template"}
+    ]
+    return templates
+
 @api_router.get("/documents")
 async def get_documents(current_user: User = Depends(get_current_user)):
     # Mock document management
