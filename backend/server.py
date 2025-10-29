@@ -675,6 +675,314 @@ async def verify_pan(pan_number: str):
         "type": "Company"
     }
 
+@api_router.post("/tenders/{tender_id}/price-analysis", response_model=PriceAnalysis)
+async def analyze_prices(tender_id: str, current_user: User = Depends(get_current_user)):
+    tender = await db.tenders.find_one({"id": tender_id}, {"_id": 0})
+    if not tender:
+        raise HTTPException(status_code=404, detail="Tender not found")
+    
+    # Mock historical price data
+    base_price = tender['estimated_value']
+    historical_prices = [
+        {"year": 2023, "price": base_price * 0.85, "vendor": "ABC Corp"},
+        {"year": 2023, "price": base_price * 0.90, "vendor": "XYZ Ltd"},
+        {"year": 2024, "price": base_price * 0.88, "vendor": "PQR Solutions"},
+        {"year": 2024, "price": base_price * 0.92, "vendor": "LMN Industries"}
+    ]
+    
+    avg_price = sum(p['price'] for p in historical_prices) / len(historical_prices)
+    recommended = avg_price * 1.05  # 5% margin
+    
+    analysis = PriceAnalysis(
+        tender_id=tender_id,
+        historical_prices=historical_prices,
+        average_price=round(avg_price, 2),
+        recommended_price=round(recommended, 2),
+        price_trend="stable"
+    )
+    
+    analysis_doc = analysis.model_dump()
+    analysis_doc['created_at'] = analysis_doc['created_at'].isoformat()
+    await db.price_analyses.insert_one(analysis_doc)
+    
+    return analysis
+
+@api_router.post("/tenders/{tender_id}/product-recommendations", response_model=ProductRecommendation)
+async def recommend_products(tender_id: str, current_user: User = Depends(get_current_user)):
+    tender = await db.tenders.find_one({"id": tender_id}, {"_id": 0})
+    if not tender:
+        raise HTTPException(status_code=404, detail="Tender not found")
+    
+    # AI-based product recommendations
+    ai_chat = await get_ai_chat()
+    prompt = f"""Based on this tender requirement: {tender['title']} in category {tender['category']}, 
+    recommend 3 suitable products and 3 OEM manufacturers. Format as JSON with keys: products, oems"""
+    
+    response = await ai_chat.send_message(UserMessage(text=prompt))
+    
+    # Mock recommendations
+    products = [
+        {"name": "Enterprise Solution X1", "specs": "High performance", "price_range": "₹5-10L", "compliance": "ISO certified"},
+        {"name": "Professional Suite V2", "specs": "Mid-range", "price_range": "₹3-6L", "compliance": "CE certified"},
+        {"name": "Standard Package S3", "specs": "Cost-effective", "price_range": "₹2-4L", "compliance": "BIS certified"}
+    ]
+    
+    oems = [
+        {"name": "TechCorp India", "rating": 4.5, "experience": "15 years", "specialization": tender['category']},
+        {"name": "Global Solutions Ltd", "rating": 4.3, "experience": "12 years", "specialization": tender['category']},
+        {"name": "Premium Vendors", "rating": 4.7, "experience": "20 years", "specialization": tender['category']}
+    ]
+    
+    recommendation = ProductRecommendation(
+        tender_id=tender_id,
+        recommended_products=products,
+        oem_suggestions=oems,
+        technical_compliance={"iso": True, "bis": True, "ce": True}
+    )
+    
+    rec_doc = recommendation.model_dump()
+    rec_doc['created_at'] = rec_doc['created_at'].isoformat()
+    await db.product_recommendations.insert_one(rec_doc)
+    
+    return recommendation
+
+@api_router.get("/notifications", response_model=List[Notification])
+async def get_notifications(current_user: User = Depends(get_current_user)):
+    notifications = await db.notifications.find(
+        {"user_id": current_user.id},
+        {"_id": 0}
+    ).sort("created_at", -1).limit(50).to_list(50)
+    
+    for notif in notifications:
+        if isinstance(notif.get('created_at'), str):
+            notif['created_at'] = datetime.fromisoformat(notif['created_at'])
+    
+    return notifications
+
+@api_router.post("/notifications", response_model=Notification)
+async def create_notification(notification: Notification, current_user: User = Depends(get_current_user)):
+    notification.user_id = current_user.id
+    notif_doc = notification.model_dump()
+    notif_doc['created_at'] = notif_doc['created_at'].isoformat()
+    await db.notifications.insert_one(notif_doc)
+    return notification
+
+@api_router.put("/notifications/{notification_id}/read")
+async def mark_notification_read(notification_id: str, current_user: User = Depends(get_current_user)):
+    result = await db.notifications.update_one(
+        {"id": notification_id, "user_id": current_user.id},
+        {"$set": {"read": True}}
+    )
+    if result.modified_count == 0:
+        raise HTTPException(status_code=404, detail="Notification not found")
+    return {"message": "Notification marked as read"}
+
+@api_router.get("/support/tickets", response_model=List[SupportTicket])
+async def get_tickets(current_user: User = Depends(get_current_user)):
+    tickets = await db.support_tickets.find(
+        {"user_id": current_user.id},
+        {"_id": 0}
+    ).sort("created_at", -1).to_list(100)
+    
+    for ticket in tickets:
+        if isinstance(ticket.get('created_at'), str):
+            ticket['created_at'] = datetime.fromisoformat(ticket['created_at'])
+    
+    return tickets
+
+@api_router.post("/support/tickets", response_model=SupportTicket)
+async def create_ticket(ticket: SupportTicket, current_user: User = Depends(get_current_user)):
+    ticket.user_id = current_user.id
+    ticket_doc = ticket.model_dump()
+    ticket_doc['created_at'] = ticket_doc['created_at'].isoformat()
+    await db.support_tickets.insert_one(ticket_doc)
+    
+    # Auto-create notification
+    notif = Notification(
+        user_id=current_user.id,
+        title="Support Ticket Created",
+        message=f"Your ticket '{ticket.subject}' has been created successfully.",
+        type="info"
+    )
+    notif_doc = notif.model_dump()
+    notif_doc['created_at'] = notif_doc['created_at'].isoformat()
+    await db.notifications.insert_one(notif_doc)
+    
+    return ticket
+
+@api_router.post("/support/tickets/{ticket_id}/respond")
+async def respond_to_ticket(ticket_id: str, response_text: str, current_user: User = Depends(get_current_user)):
+    ticket = await db.support_tickets.find_one({"id": ticket_id})
+    if not ticket:
+        raise HTTPException(status_code=404, detail="Ticket not found")
+    
+    response = {
+        "user": current_user.full_name,
+        "message": response_text,
+        "timestamp": datetime.now(timezone.utc).isoformat()
+    }
+    
+    await db.support_tickets.update_one(
+        {"id": ticket_id},
+        {"$push": {"responses": response}}
+    )
+    
+    return {"message": "Response added successfully"}
+
+@api_router.get("/vendors/performance", response_model=List[VendorPerformance])
+async def get_vendor_performance(current_user: User = Depends(get_current_user)):
+    # Mock vendor performance data
+    vendors = [
+        {
+            "id": str(uuid.uuid4()),
+            "vendor_id": "V001",
+            "vendor_name": "TechCorp Solutions",
+            "total_orders": 45,
+            "completed_orders": 42,
+            "on_time_delivery": 93.3,
+            "quality_rating": 4.5,
+            "created_at": datetime.now(timezone.utc).isoformat()
+        },
+        {
+            "id": str(uuid.uuid4()),
+            "vendor_id": "V002",
+            "vendor_name": "Global Vendors Ltd",
+            "total_orders": 32,
+            "completed_orders": 30,
+            "on_time_delivery": 93.8,
+            "quality_rating": 4.3,
+            "created_at": datetime.now(timezone.utc).isoformat()
+        }
+    ]
+    return vendors
+
+@api_router.get("/admin/users")
+async def admin_get_users(current_user: User = Depends(get_current_user)):
+    if current_user.role != "super_admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    users = await db.users.find({}, {"_id": 0, "hashed_password": 0}).to_list(1000)
+    for user in users:
+        if isinstance(user.get('created_at'), str):
+            user['created_at'] = datetime.fromisoformat(user['created_at'])
+    return users
+
+@api_router.get("/admin/stats")
+async def admin_get_stats(current_user: User = Depends(get_current_user)):
+    if current_user.role != "super_admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    total_users = await db.users.count_documents({})
+    total_tenders = await db.tenders.count_documents({})
+    total_analyses = await db.tender_analyses.count_documents({})
+    total_tickets = await db.support_tickets.count_documents({})
+    
+    return {
+        "total_users": total_users,
+        "total_tenders": total_tenders,
+        "total_analyses": total_analyses,
+        "total_support_tickets": total_tickets,
+        "active_subscriptions": random.randint(50, 200),
+        "revenue_this_month": round(random.uniform(50000, 200000), 2)
+    }
+
+@api_router.get("/subscription/my-subscription", response_model=Subscription)
+async def get_my_subscription(current_user: User = Depends(get_current_user)):
+    subscription = await db.subscriptions.find_one({"user_id": current_user.id}, {"_id": 0})
+    
+    if not subscription:
+        # Create default subscription
+        subscription = Subscription(
+            user_id=current_user.id,
+            plan="professional",
+            ai_credits=1000,
+            start_date=datetime.now(timezone.utc),
+            end_date=datetime.now(timezone.utc) + timedelta(days=30)
+        )
+        sub_doc = subscription.model_dump()
+        sub_doc['start_date'] = sub_doc['start_date'].isoformat()
+        sub_doc['end_date'] = sub_doc['end_date'].isoformat()
+        sub_doc['created_at'] = sub_doc['created_at'].isoformat()
+        await db.subscriptions.insert_one(sub_doc)
+    else:
+        if isinstance(subscription.get('start_date'), str):
+            subscription['start_date'] = datetime.fromisoformat(subscription['start_date'])
+        if isinstance(subscription.get('end_date'), str):
+            subscription['end_date'] = datetime.fromisoformat(subscription['end_date'])
+        if isinstance(subscription.get('created_at'), str):
+            subscription['created_at'] = datetime.fromisoformat(subscription['created_at'])
+        subscription = Subscription(**subscription)
+    
+    return subscription
+
+@api_router.post("/tenders/auto-classify")
+async def auto_classify_tenders(current_user: User = Depends(get_current_user)):
+    """Auto-classify tenders using AI"""
+    tenders = await db.tenders.find({}, {"_id": 0}).to_list(100)
+    
+    ai_chat = await get_ai_chat()
+    classified_count = 0
+    
+    for tender in tenders:
+        if not tender.get('ai_classified'):
+            prompt = f"Classify this tender into one category: {tender['title']}. Categories: IT Services, Construction, Medical Equipment, Office Supplies, Consulting. Reply with just the category name."
+            category = await ai_chat.send_message(UserMessage(text=prompt))
+            
+            await db.tenders.update_one(
+                {"id": tender['id']},
+                {"$set": {"category": category.strip(), "ai_classified": True}}
+            )
+            classified_count += 1
+    
+    return {"message": f"Classified {classified_count} tenders", "count": classified_count}
+
+@api_router.get("/documents")
+async def get_documents(current_user: User = Depends(get_current_user)):
+    # Mock document management
+    documents = [
+        {
+            "id": str(uuid.uuid4()),
+            "name": "Technical_Specifications.pdf",
+            "type": "pdf",
+            "size": "2.5 MB",
+            "uploaded_at": (datetime.now(timezone.utc) - timedelta(days=2)).isoformat(),
+            "category": "Technical"
+        },
+        {
+            "id": str(uuid.uuid4()),
+            "name": "Company_Profile.pdf",
+            "type": "pdf",
+            "size": "1.8 MB",
+            "uploaded_at": (datetime.now(timezone.utc) - timedelta(days=5)).isoformat(),
+            "category": "Company"
+        }
+    ]
+    return documents
+
+@api_router.get("/analytics/tender-trends")
+async def get_tender_trends(current_user: User = Depends(get_current_user)):
+    # Mock analytics data
+    trends = {
+        "categories": [
+            {"name": "IT Services", "count": 45, "value": 15000000},
+            {"name": "Construction", "count": 38, "value": 25000000},
+            {"name": "Medical Equipment", "count": 28, "value": 12000000},
+            {"name": "Office Supplies", "count": 22, "value": 5000000},
+            {"name": "Consulting", "count": 18, "value": 8000000}
+        ],
+        "monthly_trend": [
+            {"month": "Jan", "tenders": 45, "value": 20000000},
+            {"month": "Feb", "tenders": 52, "value": 25000000},
+            {"month": "Mar", "tenders": 48, "value": 22000000}
+        ],
+        "win_rate_by_category": [
+            {"category": "IT Services", "win_rate": 65},
+            {"category": "Construction", "win_rate": 58},
+            {"category": "Medical Equipment", "win_rate": 72}
+        ]
+    }
+    return trends
+
 app.include_router(api_router)
 
 app.add_middleware(
