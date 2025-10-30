@@ -1,12 +1,13 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, FileText, Users, BarChart3, MessageSquare, LogOut, Building2, Bell, HelpCircle, FolderOpen, TrendingUp, CreditCard, Shield } from 'lucide-react';
+import { LayoutDashboard, FileText, Users, BarChart3, MessageSquare, LogOut, Building2, Bell, HelpCircle, FolderOpen, TrendingUp, CreditCard, Shield, FileEdit } from 'lucide-react';
 
 const Layout = ({ children, user, onLogout }) => {
   const navItems = [
     { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
     { to: '/tenders', icon: FileText, label: 'Tenders' },
     { to: '/analytics', icon: TrendingUp, label: 'Analytics' },
+    { to: '/document-preparation', icon: FileEdit, label: 'Doc Preparation' },
     { to: '/crm', icon: Users, label: 'CRM' },
     { to: '/reports', icon: BarChart3, label: 'Reports' },
     { to: '/documents', icon: FolderOpen, label: 'Documents' },
