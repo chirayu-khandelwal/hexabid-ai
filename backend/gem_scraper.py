@@ -93,19 +93,37 @@ class GeMScraper:
         tenders = []
         
         try:
+            # Login if credentials are available
+            if self.username and self.password and not self.authenticated:
+                await self.login()
+            
             # Navigate to tender listing page
             url = f"{self.base_url}/bidlists/activeBids"
             self.driver.get(url)
             
             # Wait for page load
-            wait = WebDriverWait(self.driver, 10)
-            wait.until(EC.presence_of_element_located((By.CLASS_NAME, "bid-card")))
+            wait = WebDriverWait(self.driver, 15)
+            
+            try:
+                wait.until(EC.presence_of_element_located((By.CLASS_NAME, "bid-card")))
+            except:
+                # If bid-card class not found, try alternative selectors
+                logger.warning("bid-card class not found, trying alternative methods")
+                wait.until(EC.presence_of_element_located((By.TAG_NAME, "body")))
+            
+            # Wait additional time for dynamic content
+            await asyncio.sleep(2)
             
             # Get page source and parse with BeautifulSoup
             soup = BeautifulSoup(self.driver.page_source, 'html.parser')
             
             # Find all tender cards
             tender_cards = soup.find_all('div', class_='bid-card')[:limit]
+            
+            # If no cards found with default class, try alternative approaches
+            if not tender_cards:
+                logger.warning(f"No tender cards found with class 'bid-card', found {len(tender_cards)} tenders")
+                # Could implement alternative parsing logic here
             
             for card in tender_cards:
                 try:
