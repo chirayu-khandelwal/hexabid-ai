@@ -219,7 +219,7 @@ EMERGENT_LLM_KEY="sk-emergent-6909dD1Ad8eD016450"
 
 ### Frontend Environment (.env)
 ```env
-REACT_APP_BACKEND_URL=https://selfhosted-app.preview.emergentagent.com
+REACT_APP_BACKEND_URL=https://hexaproc-system.preview.emergentagent.com
 WDS_SOCKET_PORT=443
 REACT_APP_ENABLE_VISUAL_EDITS=false
 ENABLE_HEALTH_CHECK=false
