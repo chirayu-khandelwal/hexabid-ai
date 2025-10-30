@@ -15,6 +15,7 @@ import AdminPage from './pages/AdminPage';
 import AnalyticsPage from './pages/AnalyticsPage';
 import SubscriptionPage from './pages/SubscriptionPage';
 import DocumentsPage from './pages/DocumentsPage';
+import DocumentPreparationPage from './pages/DocumentPreparationPage';
 import { Toaster } from './components/ui/sonner';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
@@ -78,6 +79,7 @@ function App() {
           <Route path="/notifications" element={user ? <NotificationsPage /> : <Navigate to="/login" />} />
           <Route path="/support" element={user ? <SupportPage /> : <Navigate to="/login" />} />
           <Route path="/documents" element={user ? <DocumentsPage /> : <Navigate to="/login" />} />
+          <Route path="/document-preparation" element={user ? <DocumentPreparationPage /> : <Navigate to="/login" />} />
           <Route path="/subscription" element={user ? <SubscriptionPage /> : <Navigate to="/login" />} />
           <Route path="/admin" element={user ? <AdminPage /> : <Navigate to="/login" />} />
           <Route path="/" element={<Navigate to={user ? "/dashboard" : "/login"} />} />
