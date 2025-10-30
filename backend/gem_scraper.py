@@ -18,9 +18,12 @@ logger = logging.getLogger(__name__)
 class GeMScraper:
     """Scraper for GeM (Government e-Marketplace) Portal"""
     
-    def __init__(self):
+    def __init__(self, username=None, password=None):
         self.base_url = "https://gem.gov.in"
         self.api_url = "https://api.gem.gov.in"
+        self.username = username or os.getenv('GEM_USERNAME')
+        self.password = password or os.getenv('GEM_PASSWORD')
+        self.authenticated = False
         self.setup_driver()
     
     def setup_driver(self):
@@ -30,7 +33,51 @@ class GeMScraper:
         chrome_options.add_argument('--no-sandbox')
         chrome_options.add_argument('--disable-dev-shm-usage')
         chrome_options.add_argument('--disable-gpu')
+        chrome_options.add_argument('--window-size=1920,1080')
         self.driver = webdriver.Chrome(options=chrome_options)
+    
+    async def login(self):
+        """Login to GeM portal"""
+        if not self.username or not self.password:
+            logger.warning("GeM credentials not provided, proceeding without authentication")
+            return False
+        
+        try:
+            logger.info(f"Attempting to login to GeM portal with username: {self.username}")
+            
+            # Navigate to login page
+            self.driver.get(f"{self.base_url}/login")
+            
+            # Wait for login form
+            wait = WebDriverWait(self.driver, 15)
+            
+            # Find and fill username
+            username_field = wait.until(
+                EC.presence_of_element_located((By.ID, "username"))
+            )
+            username_field.clear()
+            username_field.send_keys(self.username)
+            
+            # Find and fill password
+            password_field = self.driver.find_element(By.ID, "password")
+            password_field.clear()
+            password_field.send_keys(self.password)
+            
+            # Click login button
+            login_button = self.driver.find_element(By.ID, "login-button")
+            login_button.click()
+            
+            # Wait for successful login (dashboard or profile element)
+            wait.until(EC.url_contains("dashboard"))
+            
+            self.authenticated = True
+            logger.info("Successfully logged into GeM portal")
+            return True
+            
+        except Exception as e:
+            logger.error(f"Failed to login to GeM portal: {e}")
+            self.authenticated = False
+            return False
     
     async def scrape_latest_tenders(self, category=None, limit=50):
         """
