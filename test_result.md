@@ -237,6 +237,13 @@ deployment:
         agent: "main"
         comment: "Created hardened SSL script using certbot --nginx, strong ciphers, HSTS, CSP; integrated into deploy.sh option."
 
+  current_focus:
+    - "Competitor Analysis ML Endpoint"
+    - "SSL and Nginx Hardening Script"
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
+
     priority: "high"
     needs_retesting: false
     status_history:
