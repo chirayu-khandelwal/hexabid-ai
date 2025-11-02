@@ -18,7 +18,7 @@
 - ✅ RESTful API with 25+ endpoints
 - ✅ JWT authentication with role-based access
 - ✅ MongoDB integration with proper models
-- ✅ AI integration using Emergent LLM Key (OpenAI GPT-4o)
+- ✅ AI guidance using in-house heuristics (no external LLM dependency)
 - ✅ PDF document processing
 - ✅ Mock APIs for GeM, MSME, GST, PAN, Aadhaar
 - ✅ Comprehensive error handling and logging
@@ -214,12 +214,12 @@ JWT_SECRET_KEY="hexabid_secure_jwt_key_2025_change_in_production"
 JWT_ALGORITHM="HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES=43200
 CORS_ORIGINS="*"
-EMERGENT_LLM_KEY="sk-emergent-6909dD1Ad8eD016450"
+AI_ASSISTANT_NAME="HexaBid Assistant"
 ```
 
 ### Frontend Environment (.env)
 ```env
-REACT_APP_BACKEND_URL=https://hexabid-app.preview.emergentagent.com
+REACT_APP_BACKEND_URL=https://app.hexabid.co.in
 WDS_SOCKET_PORT=443
 REACT_APP_ENABLE_VISUAL_EDITS=false
 ENABLE_HEALTH_CHECK=false
@@ -289,11 +289,11 @@ Replace mock implementations with actual API integrations by:
 
 ---
 
-## AI Integration
+## AI Assistant Configuration
 
-### Emergent LLM Key (Provided)
-- **Key**: `sk-emergent-6909dD1Ad8eD016450`
-- **Model**: OpenAI GPT-4o
+### Configurable Heuristics
+- **Assistant Name Variable**: `AI_ASSISTANT_NAME` (default: HexaBid Assistant)
+- **Processing Mode**: Deterministic heuristics and templates (no external API keys required)
 - **Features**:
   - Tender analysis and insights
   - Risk and opportunity detection
@@ -301,7 +301,7 @@ Replace mock implementations with actual API integrations by:
   - Win probability calculation
   - Chat assistant responses
 
-**The key is already configured and working!**
+**All AI-style outputs run locally without third-party services.**
 
 ---
 
@@ -451,7 +451,7 @@ As discussed earlier:
 ## Contact Information
 
 **Project**: HexaBid ERP  
-**Developer**: Emergent AI Agent (E1)  
+**Developer**: HexaBid Engineering Team
 **Client**: HexaTech eSecurity Solutions Pvt. Ltd.  
 **Domain**: app.hexabid.co.in  
 **GitHub**: https://github.com/hexatechpl  
@@ -488,7 +488,7 @@ As discussed earlier:
 
 The system includes:
 - ✅ **15+ modules** fully functional
-- ✅ **AI-powered features** using GPT-4o
+  - ✅ **AI-powered features** using deterministic heuristics
 - ✅ **Professional UI** with modern design
 - ✅ **Complete documentation** for deployment
 - ✅ **GitHub repository** ready to push
@@ -502,5 +502,5 @@ The system includes:
 
 ---
 
-**Built with ❤️ using Emergent AI**  
+**Built with ❤️ by the HexaBid Team**
 **Delivered: January 29, 2025**

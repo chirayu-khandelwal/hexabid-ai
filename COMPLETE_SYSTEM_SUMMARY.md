@@ -140,7 +140,7 @@
 - FastAPI with 1,200+ lines of Python
 - MongoDB with 10+ collections
 - JWT authentication + role-based access
-- AI integration via Emergent LLM Key
+- AI guidance via in-house heuristics (no external key)
 - PDF processing with PyPDF2
 - Comprehensive error handling
 - Async/await for performance
@@ -321,5 +321,5 @@
 
 **Status:** ✅ FULLY COMPLETE AND READY FOR PRODUCTION
 
-**Built with ❤️ using Emergent AI**  
+**Built with ❤️ by the HexaBid Team**
 **Delivered:** January 29, 2025

@@ -74,7 +74,7 @@ HexaBid ERP is a comprehensive, AI-powered tender bidding and management system 
 - **Framework**: FastAPI (Python 3.11)
 - **Database**: MongoDB
 - **Authentication**: JWT + OAuth2
-- **AI Integration**: OpenAI GPT-4 via Emergent LLM Key
+- **AI Assistance**: Deterministic heuristics with configurable prompts
 - **PDF Processing**: PyPDF2
 
 ### Frontend
@@ -86,9 +86,8 @@ HexaBid ERP is a comprehensive, AI-powered tender bidding and management system 
 - **Notifications**: Sonner
 
 ### AI Features
-- **LLM Integration**: Emergent Integrations library
-- **Models**: OpenAI GPT-4o
-- **Use Cases**: Document analysis, prediction, recommendations, chatbot
+- **AI Engine**: On-platform rules and templates (no external LLM dependency)
+- **Use Cases**: Document analysis, prediction, recommendations, chatbot simulations
 
 ## Quick Start
 
@@ -127,7 +126,7 @@ Backend `.env`:
 MONGO_URL="mongodb://localhost:27017"
 DB_NAME="hexabid_erp"
 JWT_SECRET_KEY="your-secret-key"
-EMERGENT_LLM_KEY="sk-emergent-6909dD1Ad8eD016450"
+AI_ASSISTANT_NAME="HexaBid Assistant"
 CORS_ORIGINS="*"
 ```
 
@@ -287,8 +286,7 @@ All rights reserved. This is proprietary software.
 
 ## Acknowledgments
 
-- OpenAI for GPT-4 integration
-- Emergent for LLM key management
+- HexaBid product team for the in-house AI playbooks
 - Shadcn/UI for component library
 - FastAPI for backend framework
 - React community for frontend ecosystem
