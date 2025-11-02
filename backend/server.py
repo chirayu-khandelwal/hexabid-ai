@@ -282,7 +282,7 @@ def generate_mock_tenders() -> List[Dict]:
             "tender_id": f"GEM/{2025}/{random.randint(100000, 999999)}",
             "title": f"Supply and Installation of {random.choice(categories)}",
             "organization": random.choice(organizations),
-            "description": f"Tender for procurement and installation services as per government norms.",
+            "description": "Tender for procurement and installation services as per government norms.",
             "estimated_value": round(random.uniform(500000, 50000000), 2),
             "emd_amount": round(random.uniform(10000, 500000), 2),
             "category": random.choice(categories),
