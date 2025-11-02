@@ -37,26 +37,28 @@ class BackendTester:
             print(f"   Details: {json.dumps(details, indent=2)}")
     
     def test_health_endpoint(self) -> bool:
-        """Test 1: Health endpoint GET / (no auth) returns {status: ok}"""
+        """Test 1: Backend API health check via /api/tenders (no auth required)"""
         try:
-            response = self.session.get(f"{BACKEND_URL}/", timeout=10)
+            # Since the root / endpoint is served by frontend, test backend health via a simple API call
+            response = self.session.get(f"{API_BASE}/tenders", timeout=10)
             
             if response.status_code != 200:
-                self.log_result("Health Check", False, f"Expected 200, got {response.status_code}", 
+                self.log_result("Backend Health Check", False, f"Expected 200, got {response.status_code}", 
                               {"status_code": response.status_code, "response": response.text})
                 return False
             
             data = response.json()
-            if data.get("status") != "ok":
-                self.log_result("Health Check", False, f"Expected status 'ok', got {data.get('status')}", 
+            if not isinstance(data, list):
+                self.log_result("Backend Health Check", False, f"Expected list response, got {type(data)}", 
                               {"response": data})
                 return False
             
-            self.log_result("Health Check", True, "Health endpoint working correctly", {"response": data})
+            self.log_result("Backend Health Check", True, "Backend API is responding correctly", 
+                          {"endpoint": "/api/tenders", "response_type": "list"})
             return True
             
         except Exception as e:
-            self.log_result("Health Check", False, f"Exception occurred: {str(e)}")
+            self.log_result("Backend Health Check", False, f"Exception occurred: {str(e)}")
             return False
     
     def test_auth_flow(self) -> bool:
