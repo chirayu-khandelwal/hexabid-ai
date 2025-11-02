@@ -370,7 +370,7 @@ apt-get install --reinstall chromium-browser chromium-chromedriver
 - **Framework:** FastAPI (Python)
 - **Database:** MongoDB
 - **Scraping:** Selenium + BeautifulSoup4
-- **AI/LLM:** Emergent LLM Key (OpenAI compatible)
+- **AI Guidance:** HexaBid deterministic heuristics
 - **Authentication:** JWT
 
 ### Frontend

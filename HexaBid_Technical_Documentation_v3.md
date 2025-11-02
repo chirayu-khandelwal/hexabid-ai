@@ -3,7 +3,7 @@
 ## Document Version Control
 - **Version:** 3.0.0
 - **Last Updated:** January 29, 2025
-- **Author:** Emergent AI Development Team
+- **Author:** HexaBid Engineering Team
 - **Status:** Production Ready
 
 ---
@@ -14,7 +14,7 @@
 - **Project Name:** HexaBid - AI-Powered Tender Bidding ERP
 - **Type:** Full-Stack SaaS Web Application
 - **Company:** HexaTech eSecurity Solutions Pvt. Ltd.
-- **Target Domain:** app.hexabid.co.in (Production) | https://hexabid-app.preview.emergentagent.com (Demo)
+- **Target Domain:** app.hexabid.co.in (Production)
 - **Primary Users:** Government Contractors, Suppliers, Vendors, OEMs, Consultants
 
 ### 1.2 Project Objectives
@@ -81,7 +81,7 @@
 | Database | PostgreSQL | **MongoDB** | Better suited for flexible schema, faster development |
 | UI Library | Tailwind CSS | **Tailwind CSS + Shadcn/UI** | Enhanced with pre-built accessible components |
 | Authentication | JWT | **JWT + Role-based Access** | ✓ Enhanced with 5 user roles |
-| AI Service | DeepAI/OpenAI | **Emergent LLM Key (OpenAI GPT-4o)** | Universal key for cost optimization |
+| AI Service | DeepAI/OpenAI | **HexaBid heuristic engine** | Deterministic insights without third-party APIs |
 | File Storage | OneDrive/Google Drive | **Local Storage + S3-ready** | Simplified for MVP, cloud-ready architecture |
 | Email Service | SMTP (mail.hexabid.in) | **SendGrid/AWS SES-ready** | Industry standard integration ready |
 | Process Management | pm2 | **Supervisor** | Better suited for Python applications |
@@ -198,7 +198,7 @@ frontend/
   "async_runtime": "asyncio",
   "database_driver": "Motor (MongoDB async driver)",
   "authentication": "JWT + Passlib (bcrypt)",
-  "ai_integration": "Emergent Integrations (OpenAI wrapper)",
+  "ai_integration": "HexaBid heuristic engine",
   "pdf_processing": "PyPDF2",
   "web_scraping": "Selenium + BeautifulSoup4",
   "document_generation": {
@@ -846,7 +846,7 @@ app.add_middleware(
 MONGO_URL="mongodb://localhost:27017"
 DB_NAME="hexabid_erp"
 JWT_SECRET_KEY="change-in-production"
-EMERGENT_LLM_KEY="sk-emergent-..."
+AI_ASSISTANT_NAME="HexaBid Assistant"
 ```
 
 **Best Practices:**
@@ -861,11 +861,11 @@ EMERGENT_LLM_KEY="sk-emergent-..."
 
 ### 9.1 Current Deployment (Demo)
 
-**Platform:** Emergent Cloud (Kubernetes)
+**Platform:** HexaBid Cloud (Kubernetes-ready)
 **Frontend:** Port 3000 (React Dev Server)
 **Backend:** Port 8001 (Uvicorn)
 **Process Manager:** Supervisor
-**Domain:** https://hexabid-app.preview.emergentagent.com
+**Domain:** https://app.hexabid.co.in
 
 ### 9.2 Production Deployment (Planned)
 
@@ -1367,8 +1367,8 @@ JWT_SECRET_KEY=your-super-secret-key-here
 JWT_ALGORITHM=HS256
 ACCESS_TOKEN_EXPIRE_MINUTES=43200
 
-# AI Integration
-EMERGENT_LLM_KEY=sk-emergent-6909dD1Ad8eD016450
+# AI Assistant configuration
+AI_ASSISTANT_NAME="HexaBid Assistant"
 
 # Email (Future)
 SENDGRID_API_KEY=your-sendgrid-key
@@ -1430,7 +1430,7 @@ mongo hexabid_erp --eval "db.stats()"
 |---------|------|--------|---------|
 | 1.0 | Initial | HexaTech Team | Original documentation |
 | 2.0 | Jan 2025 | Development Team | Updated with PostgreSQL |
-| 3.0 | Jan 29, 2025 | Emergent AI | Complete rewrite based on actual implementation |
+| 3.0 | Jan 29, 2025 | HexaBid Team | Complete rewrite based on actual implementation |
 
 ---
 

@@ -111,8 +111,8 @@ ACCESS_TOKEN_EXPIRE_MINUTES=43200
 # CORS (Update with your domain)
 CORS_ORIGINS="https://app.hexabid.co.in,http://localhost:3000"
 
-# AI Integration (Emergent LLM Key provided)
-EMERGENT_LLM_KEY="sk-emergent-6909dD1Ad8eD016450"
+# AI Assistant configuration
+AI_ASSISTANT_NAME="HexaBid Assistant"
 ```
 
 **Important**: Change `JWT_SECRET_KEY` to a strong random value in production!

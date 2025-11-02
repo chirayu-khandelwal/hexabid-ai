@@ -14,7 +14,7 @@
 - **Backend:** Python FastAPI with 1,500+ lines
 - **Frontend:** React 19 with 14 pages, 5,000+ lines
 - **Database:** MongoDB schemas for 13 collections
-- **AI Integration:** OpenAI GPT-4o via Emergent LLM Key
+- **AI Assistance:** Deterministic heuristics and playbooks (no external LLM dependency)
 - **GeM Scraper:** Real-time tender scraping module
 - **Document Generator:** Professional document creation system
 
@@ -128,7 +128,7 @@ cat > .env << EOF
 MONGO_URL="mongodb://localhost:27017"
 DB_NAME="hexabid_erp"
 JWT_SECRET_KEY="your-super-secret-key-here"
-EMERGENT_LLM_KEY="sk-emergent-6909dD1Ad8eD016450"
+AI_ASSISTANT_NAME="HexaBid Assistant"
 CORS_ORIGINS="*"
 EOF
 
@@ -161,14 +161,14 @@ yarn start
 ## 🎯 Key Differentiators vs Competitors
 
 ### vs TenderDetail.com
-- ✅ Better AI capabilities (GPT-4o)
+- ✅ Guided AI playbooks for tender strategy
 - ✅ Automatic document generation
 - ✅ Integrated CRM and analytics
 - ✅ Modern React 19 UI
 - ✅ Real-time GeM scraping
 
 ### vs Tender247.com
-- ✅ More comprehensive AI analysis
+- ✅ Comprehensive AI-style analysis without external LLM costs
 - ✅ Document preparation tools
 - ✅ Better user experience
 - ✅ Open architecture
@@ -176,7 +176,7 @@ yarn start
 ### vs BidHelp.co
 - ✅ Complete ERP features
 - ✅ Advanced analytics dashboard
-- ✅ AI-powered everything
+- ✅ AI-guided workflows across modules
 - ✅ Professional document generation
 
 ---
@@ -236,7 +236,7 @@ yarn start
 - Pydantic v2 validation
 
 **AI & Automation:**
-- OpenAI GPT-4o (via Emergent LLM Key)
+- HexaBid rule-based AI playbooks (deterministic summaries)
 - PyPDF2 (PDF processing)
 - Selenium (GeM scraping)
 - BeautifulSoup4 (HTML parsing)
@@ -265,7 +265,7 @@ yarn start
 
 ### Option 1: Development/Testing
 **Current Setup (Already Running)**
-- Demo URL: https://hexabid-app.preview.emergentagent.com
+- Demo URL: http://localhost:3000 (development)
 - Backend: Port 8001
 - Frontend: Port 3000
 - MongoDB: Port 27017
@@ -492,14 +492,14 @@ hexabid-erp/
 ## 🏆 Acknowledgments
 
 ### Built With
-- **AI Development:** Emergent AI Platform
-- **AI Models:** OpenAI GPT-4o
+- **AI Development:** HexaBid in-house playbooks
+- **AI Models:** Deterministic heuristic engine
 - **UI Components:** Shadcn/UI
 - **Icons:** Lucide React
 - **Fonts:** Google Fonts (Space Grotesk, Inter)
 
 ### Special Thanks
-- Emergent AI Team
+- HexaBid Implementation Team
 - Open Source Community
 - Beta Testers (upcoming)
 
@@ -551,7 +551,7 @@ Unauthorized copying, distribution, or use of this software, via any medium, is 
 
 **🚀 HexaBid ERP v3.0 - Ready to Transform Tender Management!**
 
-**Delivered with ❤️ by Emergent AI**  
+**Delivered with ❤️ by the HexaBid Team**
 **January 29, 2025**
 
 ---

@@ -7,11 +7,12 @@ Tests the ML competitor analysis endpoint and basic API health
 import requests
 import json
 import sys
+import os
 from typing import Dict, Any, Optional
 import time
 
 # Configuration
-BACKEND_URL = "https://hexabid-app.preview.emergentagent.com"
+BACKEND_URL = os.getenv("HEXABID_BACKEND_URL", "http://localhost:8000")
 API_BASE = f"{BACKEND_URL}/api"
 
 class BackendTester:

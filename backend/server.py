@@ -12,7 +12,6 @@ import uuid
 from datetime import datetime, timezone, timedelta
 from passlib.context import CryptContext
 from jose import JWTError, jwt
-from emergentintegrations.llm.chat import LlmChat, UserMessage
 import random
 import io
 from PyPDF2 import PdfReader
@@ -36,8 +35,115 @@ JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY')
 JWT_ALGORITHM = os.getenv('JWT_ALGORITHM', 'HS256')
 ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv('ACCESS_TOKEN_EXPIRE_MINUTES', 43200))
 
-# AI Client
-EMERGENT_LLM_KEY = os.getenv('EMERGENT_LLM_KEY')
+ASSISTANT_NAME = os.getenv('AI_ASSISTANT_NAME', 'HexaBid Assistant')
+
+
+def _format_currency(value: float) -> str:
+    try:
+        return f"₹{float(value):,.2f}"
+    except (TypeError, ValueError):
+        return "₹0.00"
+
+
+def summarize_tender_brief(tender: Dict[str, Any]) -> str:
+    title = tender.get('title', 'the tender')
+    organization = tender.get('organization', 'the issuing organization')
+    category = tender.get('category')
+    location = tender.get('location')
+    estimated_value = tender.get('estimated_value')
+    submission_deadline = tender.get('submission_deadline')
+
+    parts = [
+        f"{title} from {organization} focuses on {category.lower()} projects." if category else f"{title} from {organization}.",
+    ]
+
+    if estimated_value:
+        parts.append(f"The estimated contract value is around {_format_currency(estimated_value)}.")
+
+    if submission_deadline:
+        try:
+            if isinstance(submission_deadline, str):
+                submission_deadline = datetime.fromisoformat(submission_deadline)
+            parts.append(
+                f"Submissions close on {submission_deadline.strftime('%d %b %Y')}"
+            )
+        except Exception:
+            parts.append(f"Submission deadline: {submission_deadline}")
+
+    if location:
+        parts.append(f"Primary delivery location: {location}.")
+
+    parts.append("Focus on compliance, documentation readiness, and a competitive pricing narrative.")
+    return " ".join(part for part in parts if part)
+
+
+def generate_chat_reply(message: str, tender: Optional[Dict[str, Any]]) -> str:
+    lower = message.lower()
+    advice_sections = []
+
+    if tender:
+        advice_sections.append(
+            f"You're evaluating {tender.get('title', 'this tender')} from {tender.get('organization', 'the client')}."
+        )
+        advice_sections.append(
+            f"Keep documentation aligned with {tender.get('category', 'the requirement')} standards and highlight past performance."
+        )
+
+    if 'deadline' in lower or 'time' in lower:
+        advice_sections.append("Check submission milestones early and build an internal checklist backward from the deadline.")
+    elif 'price' in lower or 'cost' in lower:
+        advice_sections.append("Use historical bid data and current material rates to justify your pricing and maintain a healthy margin.")
+    elif 'risk' in lower:
+        advice_sections.append("List operational, compliance, and financial risks with mitigation steps in your proposal notes.")
+    else:
+        advice_sections.append("Clarify the client's evaluation criteria, prepare a compliance matrix, and align your executive summary with buyer priorities.")
+
+    advice_sections.append(
+        f"— {ASSISTANT_NAME}"
+    )
+
+    return " ".join(advice_sections)
+
+
+def summarize_document_text(text: str) -> str:
+    cleaned_lines = [line.strip() for line in text.splitlines() if line.strip()]
+    if not cleaned_lines:
+        return "No readable content detected in the uploaded document."
+
+    joined = " ".join(cleaned_lines)
+    words = joined.split()
+    snippet = " ".join(words[:60])
+
+    return (
+        f"Extracted approximately {len(words)} words. Key highlights: {snippet}..."
+    )
+
+
+CATEGORY_KEYWORDS = {
+    "software": "IT Services",
+    "saas": "IT Services",
+    "cloud": "IT Services",
+    "construction": "Construction",
+    "infrastructure": "Construction",
+    "hospital": "Medical Equipment",
+    "medical": "Medical Equipment",
+    "pharma": "Medical Equipment",
+    "stationery": "Office Supplies",
+    "printer": "Office Supplies",
+    "furniture": "Office Supplies",
+    "consulting": "Consulting",
+    "audit": "Consulting",
+    "training": "Consulting",
+}
+
+
+def classify_tender_category(tender: Dict[str, Any]) -> str:
+    text_blob = f"{tender.get('title', '')} {tender.get('description', '')}".lower()
+    for keyword, category in CATEGORY_KEYWORDS.items():
+        if keyword in text_blob:
+            return category
+    # Fallback to existing category or a sensible default
+    return tender.get('category') or "Consulting"
 
 app = FastAPI(title="HexaBid ERP API")
 api_router = APIRouter(prefix="/api")
@@ -262,13 +368,6 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(s
         user_doc['created_at'] = datetime.fromisoformat(user_doc['created_at'])
     return User(**user_doc)
 
-async def get_ai_chat() -> LlmChat:
-    return LlmChat(
-        api_key=EMERGENT_LLM_KEY,
-        session_id=str(uuid.uuid4()),
-        system_message="You are Hexa, an AI assistant for HexaBid ERP - a tender bidding system. Help users with tender analysis, bidding strategy, and answering questions about tenders and procurement."
-    ).with_model("openai", "gpt-4o")
-
 # Mock data generators
 def generate_mock_tenders() -> List[Dict]:
     categories = ["IT Services", "Construction", "Medical Equipment", "Office Supplies", "Consulting"]
@@ -415,29 +514,9 @@ async def analyze_tender(tender_id: str, current_user: User = Depends(get_curren
     if not tender:
         raise HTTPException(status_code=404, detail="Tender not found")
     
-    # AI Analysis
-    ai_chat = await get_ai_chat()
-    prompt = f"""Analyze this tender and provide insights:
-    
-    Title: {tender['title']}
-    Organization: {tender['organization']}
-    Category: {tender['category']}
-    Estimated Value: ₹{tender['estimated_value']:,.2f}
-    Description: {tender['description']}
-    
-    Provide:
-    1. Key requirements (3-5 points)
-    2. Potential risks (3-5 points)
-    3. Opportunities (3-5 points)
-    4. Compliance gaps to watch for
-    5. Estimated effort level (Low/Medium/High)
-    6. Brief summary
-    
-    Format as JSON with keys: key_requirements, risks, opportunities, compliance_gaps, estimated_effort, summary"""
-    
-    _ = await ai_chat.send_message(UserMessage(text=prompt))
-    
-    # Parse AI response (simplified)
+    # Deterministic AI-like summary to remove external dependency
+    tender_summary = summarize_tender_brief(tender)
+
     analysis = TenderAnalysis(
         tender_id=tender_id,
         user_id=current_user.id,
@@ -459,7 +538,7 @@ async def analyze_tender(tender_id: str, current_user: User = Depends(get_curren
         ],
         compliance_gaps=["EMD payment verification", "Technical specification compliance"],
         estimated_effort="Medium",
-        ai_summary="AI analysis generated"
+        ai_summary=tender_summary
     )
     
     analysis_doc = analysis.model_dump()
@@ -637,17 +716,15 @@ async def create_contact(contact: CRMContact, current_user: User = Depends(get_c
 
 @api_router.post("/chat", response_model=ChatResponse)
 async def chat_with_hexa(message: ChatMessage, current_user: User = Depends(get_current_user)):
-    ai_chat = await get_ai_chat()
-    
     context = ""
+    tender_details = None
     if message.tender_id:
-        tender = await db.tenders.find_one({"id": message.tender_id}, {"_id": 0})
-        if tender:
-            context = f"\nCurrent Tender Context: {tender['title']} - {tender['organization']}"
-    
-    full_message = message.message + context
-    response = await ai_chat.send_message(UserMessage(text=full_message))
-    
+        tender_details = await db.tenders.find_one({"id": message.tender_id}, {"_id": 0})
+        if tender_details:
+            context = f"\nCurrent Tender Context: {tender_details['title']} - {tender_details['organization']}"
+
+    response = generate_chat_reply(message.message + context, tender_details)
+
     return ChatResponse(
         response=response,
         tender_context={"tender_id": message.tender_id} if message.tender_id else None
@@ -670,16 +747,12 @@ async def upload_tender_document(
     for page in pdf_reader.pages:
         text_content += page.extract_text()
     
-    # AI extraction
-    ai_chat = await get_ai_chat()
-    prompt = f"Extract key information from this tender document:\n\n{text_content[:3000]}\n\nProvide: title, estimated value, deadline, key requirements"
-    
-    _ = await ai_chat.send_message(UserMessage(text=prompt))
-    
+    insights = summarize_document_text(text_content)
+
     return {
         "message": "Document processed successfully",
         "extracted_text_length": len(text_content),
-        "ai_insights": "Insights generated"
+        "ai_insights": insights
     }
 
 @api_router.get("/reports/win-loss")
@@ -758,15 +831,6 @@ async def recommend_products(tender_id: str, current_user: User = Depends(get_cu
     tender = await db.tenders.find_one({"id": tender_id}, {"_id": 0})
     if not tender:
         raise HTTPException(status_code=404, detail="Tender not found")
-    
-    # AI-based product recommendations
-    ai_chat = await get_ai_chat()
-    prompt = f"""Based on this tender requirement: {tender['title']} in category {tender['category']}, 
-    recommend 3 suitable products and 3 OEM manufacturers. Format as JSON with keys: products, oems"""
-    
-    # AI output reserved for future enhancement
-
-    _ = await ai_chat.send_message(UserMessage(text=prompt))
     
     # Mock recommendations
     products = [
@@ -965,23 +1029,20 @@ async def get_my_subscription(current_user: User = Depends(get_current_user)):
 
 @api_router.post("/tenders/auto-classify")
 async def auto_classify_tenders(current_user: User = Depends(get_current_user)):
-    """Auto-classify tenders using AI"""
+    """Auto-classify tenders using deterministic keyword heuristics"""
     tenders = await db.tenders.find({}, {"_id": 0}).to_list(100)
-    
-    ai_chat = await get_ai_chat()
+
     classified_count = 0
-    
+
     for tender in tenders:
         if not tender.get('ai_classified'):
-            prompt = f"Classify this tender into one category: {tender['title']}. Categories: IT Services, Construction, Medical Equipment, Office Supplies, Consulting. Reply with just the category name."
-            category = await ai_chat.send_message(UserMessage(text=prompt))
-            
+            category = classify_tender_category(tender)
             await db.tenders.update_one(
                 {"id": tender['id']},
-                {"$set": {"category": category.strip(), "ai_classified": True}}
+                {"$set": {"category": category, "ai_classified": True}}
             )
             classified_count += 1
-    
+
     return {"message": f"Classified {classified_count} tenders", "count": classified_count}
 
 @api_router.post("/gem/scrape-latest")
