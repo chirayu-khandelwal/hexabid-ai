@@ -679,7 +679,7 @@ async def upload_tender_document(
     return {
         "message": "Document processed successfully",
         "extracted_text_length": len(text_content),
-        "ai_insights": response[:500] if isinstance(response, str) else str(response)[:500]
+        "ai_insights": "Insights generated"
     }
 
 @api_router.get("/reports/win-loss")
