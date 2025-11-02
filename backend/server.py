@@ -435,7 +435,7 @@ async def analyze_tender(tender_id: str, current_user: User = Depends(get_curren
     
     Format as JSON with keys: key_requirements, risks, opportunities, compliance_gaps, estimated_effort, summary"""
     
-    response = await ai_chat.send_message(UserMessage(text=prompt))
+    _ = await ai_chat.send_message(UserMessage(text=prompt))
     
     # Parse AI response (simplified)
     analysis = TenderAnalysis(
@@ -674,7 +674,7 @@ async def upload_tender_document(
     ai_chat = await get_ai_chat()
     prompt = f"Extract key information from this tender document:\n\n{text_content[:3000]}\n\nProvide: title, estimated value, deadline, key requirements"
     
-    response = await ai_chat.send_message(UserMessage(text=prompt))
+    _ = await ai_chat.send_message(UserMessage(text=prompt))
     
     return {
         "message": "Document processed successfully",
@@ -766,7 +766,7 @@ async def recommend_products(tender_id: str, current_user: User = Depends(get_cu
     
     _unused_ai = response  # keep variable to avoid unused lint; AI output may be used in future release
 
-    response = await ai_chat.send_message(UserMessage(text=prompt))
+    _ = await ai_chat.send_message(UserMessage(text=prompt))
     
     # Mock recommendations
     products = [
