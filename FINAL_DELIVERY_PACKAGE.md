@@ -265,7 +265,7 @@ yarn start
 
 ### Option 1: Development/Testing
 **Current Setup (Already Running)**
-- Demo URL: https://hexaproc-system.preview.emergentagent.com
+- Demo URL: https://hexabid-app.preview.emergentagent.com
 - Backend: Port 8001
 - Frontend: Port 3000
 - MongoDB: Port 27017

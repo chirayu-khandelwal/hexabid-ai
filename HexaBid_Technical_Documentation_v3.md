@@ -14,7 +14,7 @@
 - **Project Name:** HexaBid - AI-Powered Tender Bidding ERP
 - **Type:** Full-Stack SaaS Web Application
 - **Company:** HexaTech eSecurity Solutions Pvt. Ltd.
-- **Target Domain:** app.hexabid.co.in (Production) | https://hexaproc-system.preview.emergentagent.com (Demo)
+- **Target Domain:** app.hexabid.co.in (Production) | https://hexabid-app.preview.emergentagent.com (Demo)
 - **Primary Users:** Government Contractors, Suppliers, Vendors, OEMs, Consultants
 
 ### 1.2 Project Objectives
@@ -865,7 +865,7 @@ EMERGENT_LLM_KEY="sk-emergent-..."
 **Frontend:** Port 3000 (React Dev Server)
 **Backend:** Port 8001 (Uvicorn)
 **Process Manager:** Supervisor
-**Domain:** https://hexaproc-system.preview.emergentagent.com
+**Domain:** https://hexabid-app.preview.emergentagent.com
 
 ### 9.2 Production Deployment (Planned)
 
