@@ -764,7 +764,7 @@ async def recommend_products(tender_id: str, current_user: User = Depends(get_cu
     prompt = f"""Based on this tender requirement: {tender['title']} in category {tender['category']}, 
     recommend 3 suitable products and 3 OEM manufacturers. Format as JSON with keys: products, oems"""
     
-    _unused_ai = response  # keep variable to avoid unused lint; AI output may be used in future release
+    # AI output reserved for future enhancement
 
     _ = await ai_chat.send_message(UserMessage(text=prompt))
     
