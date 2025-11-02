@@ -482,6 +482,49 @@ async def get_tender_analysis(tender_id: str, current_user: User = Depends(get_c
     
     return TenderAnalysis(**analysis)
 
+@api_router.post("/tenders/{tender_id}/competitors-ml", response_model=CompetitorAnalysis)
+async def analyze_competitors_ml(tender_id: str, current_user: User = Depends(get_current_user)):
+    tender = await db.tenders.find_one({"id": tender_id}, {"_id": 0})
+    if not tender:
+        raise HTTPException(status_code=404, detail="Tender not found")
+
+    # Ensure datetime types for model features
+    def to_dt(v):
+        if isinstance(v, str):
+            try:
+                return datetime.fromisoformat(v)
+            except Exception:
+                return None
+        return v
+
+    tender["published_date"] = to_dt(tender.get("published_date"))
+    tender["submission_deadline"] = to_dt(tender.get("submission_deadline"))
+
+    model = SimpleCompetitorModel()
+    competitors_scored = model.predict(tender)
+
+    analysis = CompetitorAnalysis(
+        tender_id=tender_id,
+        competitors=competitors_scored,
+        market_analysis=analyze_market(competitors_scored),
+        competitive_advantage=[
+            "Leverage quality and post-warranty service commitments",
+            "Target 12-16% margin with flexible delivery milestones",
+            "Highlight relevant domain experience and compliance readiness"
+        ],
+        threat_level=(
+            "High" if any(c.get("threat") == "high" for c in competitors_scored)
+            else ("Medium" if any(c.get("threat") == "medium" for c in competitors_scored) else "Low")
+        ),
+    )
+
+    analysis_doc = analysis.model_dump()
+    analysis_doc['created_at'] = analysis_doc['created_at'].isoformat()
+    await db.competitor_analyses.insert_one(analysis_doc)
+
+    return analysis
+
+
 @api_router.post("/tenders/{tender_id}/competitors", response_model=CompetitorAnalysis)
 async def analyze_competitors(tender_id: str, current_user: User = Depends(get_current_user)):
     tender = await db.tenders.find_one({"id": tender_id}, {"_id": 0})
