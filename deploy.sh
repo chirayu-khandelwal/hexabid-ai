@@ -118,6 +118,12 @@ fi
 deactivate
 
 # Step 6: Setup Node.js frontend
+# Ensure scripts folder exists
+mkdir -p $(pwd)/scripts
+if [ ! -f "$(pwd)/scripts/enable_ssl.sh" ]; then
+  print_warning "enable_ssl.sh not found in scripts/. SSL hardening will fallback to certbot"
+fi
+
 print_info "Setting up frontend..."
 cd $FRONTEND_DIR
 
