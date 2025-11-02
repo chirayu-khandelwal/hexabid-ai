@@ -256,16 +256,20 @@ systemctl enable hexabid-backend
 
 print_info "Backend service created and started"
 
-# Step 10: Setup SSL with Certbot (optional - requires domain to be pointing to server)
+# Step 10: Setup SSL with Certbot or hardened script
 print_info "SSL Certificate setup..."
-read -p "Do you want to setup SSL certificate now? Domain must be pointing to this server. (y/n): " setup_ssl
-
-if [ "$setup_ssl" = "y" ] || [ "$setup_ssl" = "Y" ]; then
-    print_info "Setting up SSL certificate..."
-    certbot --nginx -d $DOMAIN --non-interactive --agree-tos --email admin@hexabid.co.in
-    print_info "SSL certificate installed successfully"
+read -p "Use hardened SSL script (recommended)? (y/n): " use_hardened
+if [ "$use_hardened" = "y" ] || [ "$use_hardened" = "Y" ]; then
+    bash $(pwd)/scripts/enable_ssl.sh $DOMAIN admin@hexabid.co.in || true
 else
-    print_warning "Skipping SSL setup. You can run 'certbot --nginx -d $DOMAIN' later to enable HTTPS"
+    read -p "Do you want to setup SSL certificate now? Domain must be pointing to this server. (y/n): " setup_ssl
+    if [ "$setup_ssl" = "y" ] || [ "$setup_ssl" = "Y" ]; then
+        print_info "Setting up SSL certificate via certbot..."
+        certbot --nginx -d $DOMAIN --non-interactive --agree-tos --email admin@hexabid.co.in || true
+        print_info "SSL certificate installed successfully"
+    else
+        print_warning "Skipping SSL setup. You can run 'certbot --nginx -d $DOMAIN' later to enable HTTPS or scripts/enable_ssl.sh $DOMAIN <email>"
+    fi
 fi
 
 # Step 11: Configure firewall (if UFW is installed)
