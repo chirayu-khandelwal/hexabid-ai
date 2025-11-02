@@ -224,6 +224,19 @@ deployment:
     working: true
     file: "/app/PRODUCTION_DEPLOYMENT_GUIDE.md"
     stuck_count: 0
+
+  - task: "SSL and Nginx Hardening Script"
+    implemented: true
+    working: "NA"
+    file: "/app/scripts/enable_ssl.sh"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Created hardened SSL script using certbot --nginx, strong ciphers, HSTS, CSP; integrated into deploy.sh option."
+
     priority: "high"
     needs_retesting: false
     status_history:
