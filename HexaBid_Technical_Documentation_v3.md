@@ -1368,7 +1368,7 @@ JWT_ALGORITHM=HS256
 ACCESS_TOKEN_EXPIRE_MINUTES=43200
 
 # AI Assistant configuration
-AI_ASSISTANT_NAME=HexaBid Assistant
+AI_ASSISTANT_NAME="HexaBid Assistant"
 
 # Email (Future)
 SENDGRID_API_KEY=your-sendgrid-key
