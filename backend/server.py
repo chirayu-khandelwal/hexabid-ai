@@ -18,6 +18,7 @@ import io
 from PyPDF2 import PdfReader
 from gem_scraper import GeMScraper, HistoricalDataCollector
 from document_generator import DocumentGenerator
+from ai_models.competitor_model import SimpleCompetitorModel, analyze_market
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
