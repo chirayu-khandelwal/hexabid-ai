@@ -133,13 +133,21 @@ EOF
 # Make scripts executable
 chmod +x $OUTPUT_DIR/*.sh
 
-# Create compressed archive
-echo "[INFO] Creating compressed archive..."
+# Create compressed archives (tar.gz and zip)
+echo "[INFO] Creating compressed archives..."
 cd /tmp
-tar -czf $ZIP_FILE $PACKAGE_NAME/
+
+# tar.gz
+rm -f $TAR_FILE
+tar -czf $TAR_FILE $PACKAGE_NAME/
+
+# zip
+rm -f $ZIP_FILE
+zip -r -q $ZIP_FILE $PACKAGE_NAME/
 
 # Get file size
-FILE_SIZE=$(du -h $ZIP_FILE | cut -f1)
+FILE_SIZE_TAR=$(du -h $TAR_FILE | cut -f1)
+FILE_SIZE_ZIP=$(du -h $ZIP_FILE | cut -f1)
 
 # Cleanup temp directory
 rm -rf $OUTPUT_DIR
