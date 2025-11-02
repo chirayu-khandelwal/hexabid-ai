@@ -15,7 +15,8 @@ echo "========================================"
 PACKAGE_NAME="hexabid-erp-deployment"
 PACKAGE_VERSION="v1.0"
 OUTPUT_DIR="/tmp/$PACKAGE_NAME"
-ZIP_FILE="/app/${PACKAGE_NAME}_${PACKAGE_VERSION}.tar.gz"
+TAR_FILE="/app/${PACKAGE_NAME}_${PACKAGE_VERSION}.tar.gz"
+ZIP_FILE="/app/${PACKAGE_NAME}_${PACKAGE_VERSION}.zip"
 
 # Create temporary directory
 echo "[INFO] Creating package directory..."
