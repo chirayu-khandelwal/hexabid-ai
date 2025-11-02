@@ -1087,6 +1087,11 @@ async def get_document_templates(current_user: User = Depends(get_current_user))
     return templates
 
 @api_router.get("/documents")
+
+@app.get("/")
+async def root_health():
+    return {"status": "ok", "service": "HexaBid ERP API"}
+
 async def get_documents(current_user: User = Depends(get_current_user)):
     # Mock document management
     documents = [
