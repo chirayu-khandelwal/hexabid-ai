@@ -157,15 +157,18 @@ backend:
 
   - task: "Competitor Analysis ML Endpoint"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/backend/ai_models/competitor_model.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Added lightweight ML-based competitor analysis endpoint at /api/tenders/{tender_id}/competitors-ml using SimpleCompetitorModel."
+      - working: true
+        agent: "testing"
+        comment: "✅ TESTED: ML competitor analysis endpoint working correctly. Returns proper structure with tender_id, competitors[], market_analysis, competitive_advantage[], threat_level. All 6 backend tests passed (100% success rate). Endpoint correctly analyzes competitors using SimpleCompetitorModel and persists data to competitor_analyses collection."
 
         comment: "Backend server running successfully with all 15+ modules and AI subsystems"
 
