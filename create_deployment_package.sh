@@ -47,6 +47,8 @@ rm -rf $OUTPUT_DIR/frontend/.cache
 echo "[INFO] Copying deployment scripts..."
 cp /app/deploy.sh $OUTPUT_DIR/
 cp /app/configure_scraper.sh $OUTPUT_DIR/
+mkdir -p $OUTPUT_DIR/scripts
+cp /app/scripts/*.sh $OUTPUT_DIR/scripts/ 2>/dev/null || true
 
 # Copy documentation
 echo "[INFO] Copying documentation..."
