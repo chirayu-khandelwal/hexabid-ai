@@ -277,7 +277,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "GeM Scraper Authentication"
+    - "Competitor Analysis ML Endpoint"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
