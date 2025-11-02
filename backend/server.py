@@ -862,7 +862,7 @@ async def respond_to_ticket(ticket_id: str, response_text: str, current_user: Us
     if not ticket:
         raise HTTPException(status_code=404, detail="Ticket not found")
     
-    response = {
+    response_payload = {
         "user": current_user.full_name,
         "message": response_text,
         "timestamp": datetime.now(timezone.utc).isoformat()
@@ -870,7 +870,7 @@ async def respond_to_ticket(ticket_id: str, response_text: str, current_user: Us
     
     await db.support_tickets.update_one(
         {"id": ticket_id},
-        {"$push": {"responses": response}}
+        {"$push": {"responses": response_payload}}
     )
     
     return {"message": "Response added successfully"}
