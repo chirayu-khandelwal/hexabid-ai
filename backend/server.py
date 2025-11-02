@@ -459,7 +459,7 @@ async def analyze_tender(tender_id: str, current_user: User = Depends(get_curren
         ],
         compliance_gaps=["EMD payment verification", "Technical specification compliance"],
         estimated_effort="Medium",
-        ai_summary=response[:500] if len(response) > 500 else response
+        ai_summary="AI analysis generated"
     )
     
     analysis_doc = analysis.model_dump()
